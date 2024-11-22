@@ -6,6 +6,7 @@ package application;
 
 import interfaces.IMunicipios;
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.List;
 
 /**
@@ -41,8 +42,10 @@ public class Municipios implements IMunicipios{
     private Integer rankIDHGeral = null;
     private Integer rankIDHEducacao = null;
     private Integer rankIDHLongevidade = null;
+    
+    private Timestamp dataAtualizacao = null;
 
-    public Municipios(Integer codigo, String nomeMunicipio, String microrregiao, String estado, String regiao, Double areaKmQuadrado, Double populacao, Double domicilios, Double pibTotal, Double rendaMedia, Double rendaNominal, Double peaDia, Double idhGeral, Double idhEducacao, Double idhLongevidade) {
+    public Municipios(Integer codigo, String nomeMunicipio, String microrregiao, String estado, String regiao, Double areaKmQuadrado, Double populacao, Double domicilios, Double pibTotal, Double rendaMedia, Double rendaNominal, Double peaDia, Double idhGeral, Double idhEducacao, Double idhLongevidade, Timestamp dataAtualizacao) {
         this.codigo = codigo;
         this.nomeMunicipio = nomeMunicipio;
         this.microrregiao = microrregiao;
@@ -52,7 +55,7 @@ public class Municipios implements IMunicipios{
         this.populacao = populacao;
         this.domicilios = domicilios;
         this.rendaMedia = rendaMedia;
-        this.pibTotal = (pibTotal * 1000);
+        this.pibTotal = pibTotal;
         this.rendaMedia = rendaMedia;
         this.rendaNominal = rendaNominal;
         this.peaDia = peaDia;
@@ -60,6 +63,7 @@ public class Municipios implements IMunicipios{
         this.idhEducacao = idhEducacao;
         this.idhLongevidade = idhLongevidade;
         this.densidadeDemografica = calcularDensidadeDemografica(populacao, areaKmQuadrado);
+        this.dataAtualizacao = dataAtualizacao;
         pibPerCapita = calcularPIBPerCapita(populacao, (pibTotal * 1000));
         classIDHGeral = classificarIDHGeral(idhGeral);
         classIDHEducacao = classificarIDHEducacao(idhEducacao);
@@ -71,6 +75,15 @@ public class Municipios implements IMunicipios{
         rankIDHEducacao = 1;
         rankIDHLongevidade = 1;
     }
+    
+    public void atualizarDados(){
+        densidadeDemografica = calcularDensidadeDemografica(populacao, areaKmQuadrado);
+        pibPerCapita = calcularPIBPerCapita(populacao, pibTotal);
+        classIDHGeral = classificarIDHGeral(idhGeral);
+        classIDHEducacao = classificarIDHEducacao(idhEducacao);
+        classIDHLongevidade = classificarIDHLongevidade(idhLongevidade);
+        calcularRanking();
+    };
     
     @Override
     public Double calcularDensidadeDemografica(Double populacao, Double area)throws IllegalArgumentException{
@@ -370,6 +383,14 @@ public class Municipios implements IMunicipios{
 
     public void setRankIDHLongevidade(Integer rankIDHLongevidade) {
         this.rankIDHLongevidade = rankIDHLongevidade;
+    }
+
+    public Timestamp getDataAtualizacao() {
+        return dataAtualizacao;
+    }
+
+    public void setDataAtualizacao(Timestamp dataAtualizacao) {
+        this.dataAtualizacao = dataAtualizacao;
     }
     
     

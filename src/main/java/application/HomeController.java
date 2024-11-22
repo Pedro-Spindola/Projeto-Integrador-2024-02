@@ -125,6 +125,7 @@ public class HomeController implements Initializable {
     URL imagePathBaixo = getClass().getResource("/icon/setaBaixo.png");
     URL imagePathNull = getClass().getResource("/icon/null.png");
 
+    private ObservableList<String> listMunicipios = null;
     private boolean isButtonPressed = false; 
     
     @FXML
@@ -271,11 +272,26 @@ public class HomeController implements Initializable {
             alert.setHeaderText(null);
             alert.setContentText("Deseja salvar as alterações?");
             Optional<ButtonType> result = alert.showAndWait();
+            
             if (result.isPresent() && result.get() == ButtonType.OK) {
-                //atualizarDados(comboBoxMunicipios.getValue());
-            } else {
-                // NÃO SALVO
+                String municipioSelecionado = comboBoxMunicipios.getValue();
+                Municipios municipio = Conexao.consultarMunicipioPeloNome(municipioSelecionado);
+                
+                municipio.setPopulacao(Double.valueOf(tfPopulacao.getText()));
+                municipio.setDomicilios(Double.valueOf(tfDomicilios.getText()));
+                municipio.setPibTotal(Double.valueOf(tfPib.getText()));
+                municipio.setRendaMedia(Double.valueOf(tfRendaMedia.getText()));
+                municipio.setRendaNominal(Double.valueOf(tfRendaNominal.getText()));
+                municipio.setPeaDia(Double.valueOf(tfPea.getText()));
+                municipio.setIdhGeral(Double.valueOf(tfIDHGeral.getText()));
+                municipio.setIdhEducacao(Double.valueOf(tfIHGEducacao.getText()));
+                municipio.setIdhLongevidade(Double.valueOf(tfIHDLongevidade.getText()));
+                municipio.atualizarDados();
+                //municipio.setDateUltimaModificacao(getDateTime());
+                
+                Conexao.editarMunicipioNaTabela("municipios", municipio);
             }
+            
             String estilo = "-fx-background-color: #F9FFF6; -fx-background-insets: 0; -fx-background-radius: 6; -fx-border-color: transparent;";
             String btnEstilo = "-fx-background-color: #f9fff6; -fx-background-radius: 10; -fx-border-color: #f9fff6; -fx-border-radius: 10;";
 
@@ -320,17 +336,181 @@ public class HomeController implements Initializable {
         }
     }
     
+    @FXML
+    private void btnExporta(ActionEvent event) {
+       // Btn exportar / deletar
+       if (!isButtonPressed) {
+           // Atualizar os dados do município selecionado antes de exportar
+           
+           // Exportar o CSV
+           Sistema sistema = new Sistema();
+           
+           Alert confirmar = new Alert(AlertType.CONFIRMATION);
+           confirmar.setTitle("EMGO");
+           confirmar.setHeaderText(null);
+           confirmar.setContentText("Deseja exporta os dados do município?");
+           Optional<ButtonType> result = confirmar.showAndWait();
+           if (result.isPresent() && result.get() == ButtonType.OK){
+               sistema.exportaArquivoCSV();
+               Alert alert = new Alert(AlertType.INFORMATION);
+               alert.setTitle("EMGO");
+               alert.setHeaderText(null);
+               alert.setContentText("O arquivo CSV foi salvo com sucesso.");
+               alert.showAndWait();
+           }
+
+       } else {
+           Alert alert = new Alert(AlertType.CONFIRMATION);
+           alert.setTitle("EMGO");
+           alert.setHeaderText(null);
+           alert.setContentText("Deseja limpar os dados do município?");
+           Optional<ButtonType> result = alert.showAndWait();
+           if (result.isPresent() && result.get() == ButtonType.OK) {
+               String selectedMunicipio = comboBoxMunicipios.getSelectionModel().getSelectedItem();
+               if (selectedMunicipio != null) {
+                    String estilo = "-fx-background-color: #F9FFF6; -fx-background-insets: 0; -fx-background-radius: 6; -fx-border-color: transparent;";
+                    String btnEstilo = "-fx-background-color: #f9fff6; -fx-background-radius: 10; -fx-border-color: #f9fff6; -fx-border-radius: 10;";
+                    String municipioSelecionado = comboBoxMunicipios.getValue();
+                    Municipios municipio = Conexao.consultarMunicipioPeloNome(municipioSelecionado);
+                
+                    // Limpar os campos de texto
+                    tfPopulacao.setText("0");
+                    tfDomicilios.setText("0");
+                    tfPib.setText("0");
+                    tfRendaMedia.setText("0");
+                    tfRendaNominal.setText("0");
+                    tfPea.setText("0");
+                    tfIDHGeral.setText("0");
+                    tfIHGEducacao.setText("0");
+                    tfIHDLongevidade.setText("0");
+                   
+                    municipio.setPopulacao(Double.valueOf(tfPopulacao.getText()));
+                    municipio.setDomicilios(Double.valueOf(tfDomicilios.getText()));
+                    municipio.setPibTotal(Double.valueOf(tfPib.getText()));
+                    municipio.setRendaMedia(Double.valueOf(tfRendaMedia.getText()));
+                    municipio.setRendaNominal(Double.valueOf(tfRendaNominal.getText()));
+                    municipio.setPeaDia(Double.valueOf(tfPea.getText()));
+                    municipio.setIdhGeral(Double.valueOf(tfIDHGeral.getText()));
+                    municipio.setIdhEducacao(Double.valueOf(tfIHGEducacao.getText()));
+                    municipio.setIdhLongevidade(Double.valueOf(tfIHDLongevidade.getText()));
+                    municipio.atualizarDados();
+                    //municipio.setDateUltimaModificacao(getDateTime());
+
+                    Conexao.editarMunicipioNaTabela("municipios", municipio);
+                
+                    Constraints.setRemoveTextFieldDouble(tfPopulacao);
+                    Constraints.setRemoveTextFieldDouble(tfDomicilios);
+                    Constraints.setRemoveTextFieldDouble(tfPib);
+                    Constraints.setRemoveTextFieldDouble(tfRendaMedia);
+                    Constraints.setRemoveTextFieldDouble(tfRendaNominal);
+                    Constraints.setRemoveTextFieldDouble(tfPea);
+                    Constraints.setRemoveTextFieldDouble(tfIDHGeral);
+                    Constraints.setRemoveTextFieldDouble(tfIHGEducacao);
+                    Constraints.setRemoveTextFieldDouble(tfIHDLongevidade);
+
+                    // Redefinir os estilos dos campos de texto
+                    tfPopulacao.setStyle(estilo);
+                    tfDomicilios.setStyle(estilo);
+                    tfPib.setStyle(estilo);
+                    tfRendaMedia.setStyle(estilo);
+                    tfRendaNominal.setStyle(estilo);
+                    tfPea.setStyle(estilo);
+                    tfIDHGeral.setStyle(estilo);
+                    tfIHGEducacao.setStyle(estilo);
+                    tfIHDLongevidade.setStyle(estilo);
+
+                    // Tornar os campos não editáveis
+                    tfPopulacao.setEditable(false);
+                    tfDomicilios.setEditable(false);
+                    tfPib.setEditable(false);
+                    tfRendaMedia.setEditable(false);
+                    tfRendaNominal.setEditable(false);
+                    tfPea.setEditable(false);
+                    tfIDHGeral.setEditable(false);
+                    tfIHGEducacao.setEditable(false);
+                    tfIHDLongevidade.setEditable(false);
+
+                    // Preencher dados do município selecionado
+                    preencherDados(comboBoxMunicipios.getValue());
+
+                    // Atualizar botões
+                    editar.setText("Editar");
+                    exportar.setText("Exportar");
+                    exportar.setStyle(btnEstilo);
+                    exportar.setTextFill(Color.web("#e8bb00"));
+                    sobre.setText("Sobre");
+                    isButtonPressed = false;
+               }
+           }
+       }
+   }
+    
+    @FXML
+    private void verificarCode() {
+        Integer code = (Integer.valueOf(inCode.getText()));
+        Municipios municipio = null;
+        municipio = Conexao.consultarMunicipioPeloCodigo(code);
+        int i = 0;
+        if (municipio != null) {
+            String nomeMunicipio = municipio.getNomeMunicipio();
+            comboBoxMunicipios.getSelectionModel().select(nomeMunicipio);
+            preencherDados(nomeMunicipio);
+            i++;
+        }
+           
+        if(i == 0){
+            Alert alert = new Alert(AlertType.INFORMATION);
+            alert.setTitle("EMGO");
+            alert.setHeaderText(null);
+            alert.setContentText("Erro, código do município não encontrado!");
+            alert.showAndWait();
+            inCode.setText("");
+            comboBoxMunicipios.getSelectionModel().clearSelection();
+
+            tfCodigo.setText("");
+            tfNome.setText("");
+            tfRegiao.setText("");
+            tfEstado.setText("");
+            tfMicrorregiao.setText("");
+            tfArea.setText("");
+            tfPopulacao.setText("");
+            tfDomicilios.setText("");
+            tfDensidade.setText("");
+            tfPib.setText("");
+            tfPerCapita.setText("");
+            tfPea.setText("");
+            tfRendaMedia.setText("");
+            tfRendaNominal.setText("");
+            tfIDHGeral.setText("");
+            tfIHGEducacao.setText("");
+            tfIHDLongevidade.setText("");
+            laRankingPopulacao.setText("");
+            laRankingPib.setText("");
+            laRankingPerCapita.setText("");
+            laRankingIDHGeral.setText("");
+            laRankingIDHEducacao.setText("");
+            laRankingIDHLongevidade.setText("");
+            laDateUltimaAtualizacao.setText("");
+
+            imagemBandeiraMunicipio.setImage(new Image(imagePathNull.toString()));
+            imagemMapsMunicipio.setImage(new Image(imagePathNull.toString()));
+            
+            imagemIDHGeral.setImage(new Image(imagePathNull.toString()));
+            imagemIDHEducacao.setImage(new Image(imagePathNull.toString()));
+            imagemIDHLongevidade.setImage(new Image(imagePathNull.toString()));
+        }
+        inCode.setText("");
+    }
+    
     public void preencherDados(String municipioSelecionado) {
         Locale localeBrasil = new Locale("pt", "BR");
         Municipios municipio = Conexao.consultarMunicipioPeloNome(municipioSelecionado);
-        municipio.calcularRanking();
+        municipio.atualizarDados();
                             
         // Formatar o valor para a modeda BRL
         NumberFormat nf = NumberFormat.getCurrencyInstance(localeBrasil);
         // Formato o numero para exibir.
         DecimalFormat df = new DecimalFormat("#,##0.##");
-
-        //municipios.atualizarDados();
 
         tfCodigo.setText(String.valueOf(municipio.getCodigo()));
         tfNome.setText(municipio.getNomeMunicipio());
@@ -355,7 +535,7 @@ public class HomeController implements Initializable {
         laRankingIDHGeral.setText(String.valueOf(municipio.getRankIDHGeral() + " º"));
         laRankingIDHEducacao.setText(String.valueOf(municipio.getRankIDHEducacao()+ " º"));
         laRankingIDHLongevidade.setText(String.valueOf(municipio.getRankIDHLongevidade()+ " º"));
-        //laDateUltimaAtualizacao.setText(String.valueOf(municipio.getDateUltimaModificacao()));
+        laDateUltimaAtualizacao.setText(Sistema.getDateTime(municipio.getDataAtualizacao()));
         
         URL imagePathBandeira = getClass().getResource("/bandeiras/" + Integer.toString(municipio.getCodigo()) + "_ban.png");
         URL imagePathMapas = getClass().getResource("/maps/" + Integer.toString(municipio.getCodigo()) + "_map.png");
@@ -405,18 +585,21 @@ public class HomeController implements Initializable {
     
     @FXML
     public void importaCSV() {
-        Sistema sistema = new Sistema();
-        sistema.importaCSV();
+         if (isButtonPressed == false){
+            Sistema sistema = new Sistema();
+            sistema.importaCSV();
+            listMunicipios = Conexao.lerNomesDoMunicipios();
+            comboBoxMunicipios.setItems(listMunicipios);
+         }
         
     }
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // Obter a lista de municípios do banco de dados
-        ObservableList<String> listMunicipios = Conexao.lerNomesDoMunicipios();
+        listMunicipios = Conexao.lerNomesDoMunicipios();
         comboBoxMunicipios.setItems(listMunicipios);
         comboBoxMunicipios.getSelectionModel().clearSelection();
-        
         // Método para retorna o valor escolhido pelo o ComboBox
         comboBoxMunicipios.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
             @Override

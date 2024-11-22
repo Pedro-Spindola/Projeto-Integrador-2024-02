@@ -9,12 +9,6 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import javafx.stage.StageStyle;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-
 /**
  * JavaFX App
  */

@@ -45,9 +45,11 @@ public class Conexao {
                     + "rendaMedia DECIMAL(15, 2) NOT NULL, "
                     + "rendaNominal DECIMAL(15, 2) NOT NULL, "
                     + "peaDia DECIMAL(15, 2) NOT NULL, "
-                    + "idhGeral DECIMAL(15, 2) NOT NULL, "
-                    + "idhEducacao DECIMAL(15, 2) NOT NULL, "
-                    + "idhLongevidade DECIMAL(15, 2) NOT NULL);";
+                    + "idhGeral DECIMAL(15, 3) NOT NULL, "
+                    + "idhEducacao DECIMAL(15, 3) NOT NULL, "
+                    + "idhLongevidade DECIMAL(15, 3) NOT NULL, "
+                    + "dataAtualizacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"
+                    + ");";
 
             // Executando o comando SQL para criar a tabela
             stmt.executeUpdate(createTableQuery);
@@ -61,10 +63,7 @@ public class Conexao {
         }
     }
     
-    public static void adicionarUmaNovaLinhaNaTabela(String tabela, Integer codigo, String nome, String microrregiao, String estado, String regiao, Double areaKmQuadrado, 
-                                         Double populacao, Double domicilios, Double pibTotal, Double rendaMedia, 
-                                         Double rendaNominal, Double peaDia, Double idhGeral, Double idhEducacao, 
-                                         Double idhLongevidade){
+    public static void adicionarUmaNovaLinhaNaTabela(String tabela, Municipios municipio){
         // SQL de inserção
         String insertQuery = "INSERT INTO " + tabela + " (codigo, nome, microrregiao, estado, regiao, areaKmQuadrado, populacao, "
                              + "domicilios, pibTotal, rendaMedia, rendaNominal, peaDia, idhGeral, idhEducacao, idhLongevidade) "
@@ -74,32 +73,84 @@ public class Conexao {
             PreparedStatement pstmt = connection.prepareStatement(insertQuery)) {
             
             // Definindo os parâmetros do PreparedStatement
-            pstmt.setInt(1, codigo);
-            pstmt.setString(2, nome);
-            pstmt.setString(3, microrregiao);
-            pstmt.setString(4, estado);
-            pstmt.setString(5, regiao);
-            pstmt.setDouble(6, areaKmQuadrado);
-            pstmt.setDouble(7, populacao);
-            pstmt.setDouble(8, domicilios);
-            pstmt.setDouble(9, pibTotal);
-            pstmt.setDouble(10, rendaMedia);
-            pstmt.setDouble(11, rendaNominal);
-            pstmt.setDouble(12, peaDia);
-            pstmt.setDouble(13, idhGeral);
-            pstmt.setDouble(14, idhEducacao);
-            pstmt.setDouble(15, idhLongevidade);
+            pstmt.setInt(1, municipio.getCodigo());
+            pstmt.setString(2, municipio.getNomeMunicipio());
+            pstmt.setString(3, municipio.getMicrorregiao());
+            pstmt.setString(4, municipio.getEstado());
+            pstmt.setString(5, municipio.getRegiao());
+            pstmt.setDouble(6, municipio.getAreaKmQuadrado());
+            pstmt.setDouble(7, municipio.getPopulacao());
+            pstmt.setDouble(8, municipio.getDomicilios());
+            pstmt.setDouble(9, municipio.getPibTotal());
+            pstmt.setDouble(10, municipio.getRendaMedia());
+            pstmt.setDouble(11, municipio.getRendaNominal());
+            pstmt.setDouble(12, municipio.getPeaDia());
+            pstmt.setDouble(13, municipio.getIdhGeral());
+            pstmt.setDouble(14, municipio.getIdhEducacao());
+            pstmt.setDouble(15, municipio.getIdhLongevidade());
             
             // Executando a inserção
             pstmt.executeUpdate();
-            
-            System.out.println("Dados inseridos com sucesso na tabela 'municipios'.");
-        
         
         } catch (SQLException e) {
             System.out.println("Erro ao inserir dados na tabela 'municipios': " + e.getMessage());
         }
     }
+    
+    public static void editarMunicipioNaTabela(String tabela, Municipios municipio){
+        // SQL de atualização
+        String updateQuery = "UPDATE " + tabela + " SET "
+                            + "nome = ?, "
+                            + "microrregiao = ?, "
+                            + "estado = ?, "
+                            + "regiao = ?, "
+                            + "areaKmQuadrado = ?, "
+                            + "populacao = ?, "
+                            + "domicilios = ?, "
+                            + "pibTotal = ?, "
+                            + "rendaMedia = ?, "
+                            + "rendaNominal = ?, "
+                            + "peaDia = ?, "
+                            + "idhGeral = ?, "
+                            + "idhEducacao = ?, "
+                            + "idhLongevidade = ?, "
+                            + "dataAtualizacao = CURRENT_TIMESTAMP "
+                            + "WHERE codigo = ?";
+
+        try (Connection connection = createConnection(); 
+             PreparedStatement pstmt = connection.prepareStatement(updateQuery)) {
+
+            // Definindo os parâmetros do PreparedStatement
+            pstmt.setString(1, municipio.getNomeMunicipio());
+            pstmt.setString(2, municipio.getMicrorregiao());
+            pstmt.setString(3, municipio.getEstado());
+            pstmt.setString(4, municipio.getRegiao());
+            pstmt.setDouble(5, municipio.getAreaKmQuadrado());
+            pstmt.setDouble(6, municipio.getPopulacao());
+            pstmt.setDouble(7, municipio.getDomicilios());
+            pstmt.setDouble(8, municipio.getPibTotal());
+            pstmt.setDouble(9, municipio.getRendaMedia());
+            pstmt.setDouble(10, municipio.getRendaNominal());
+            pstmt.setDouble(11, municipio.getPeaDia());
+            pstmt.setDouble(12, municipio.getIdhGeral());
+            pstmt.setDouble(13, municipio.getIdhEducacao());
+            pstmt.setDouble(14, municipio.getIdhLongevidade());
+            pstmt.setInt(15, municipio.getCodigo());
+
+            // Executando a atualização
+            int rowsAffected = pstmt.executeUpdate();
+
+            if (rowsAffected > 0) {
+                System.out.println("Dados atualizados com sucesso na tabela 'municipios'.");
+            } else {
+                System.out.println("Nenhuma linha foi atualizada. Verifique se o 'codigo' existe.");
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Erro ao atualizar dados na tabela 'municipios': " + e.getMessage());
+        }
+    }
+
     
     // Método para ler os usuários
     public static void lerUsuarios() {
@@ -175,9 +226,53 @@ public class Conexao {
                     Double idhGeral = rs.getDouble("idhGeral");
                     Double idhEducacao = rs.getDouble("idhEducacao");
                     Double idhLongevidade = rs.getDouble("idhLongevidade");
-
+                    Timestamp dataAtualizacao = rs.getTimestamp("dataAtualizacao");
+                    
                     // Cria um novo objeto Municipio com os dados da tabela
-                    municipio = new Municipios(codigo, nome, microrregiao, estado, regiao, areaKmQuadrado, populacao, domicilios, pibTotal,  rendaMedia, rendaNominal, peaDia, idhGeral, idhEducacao, idhLongevidade);
+                    municipio = new Municipios(codigo, nome, microrregiao, estado, regiao, areaKmQuadrado, populacao, domicilios, pibTotal,  rendaMedia, rendaNominal, peaDia, idhGeral, idhEducacao, idhLongevidade, dataAtualizacao);
+                    return municipio;
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Erro ao consultar a tabela de municípios: " + e.getMessage());
+        }
+        return null;
+    }
+    
+    // Método para ler os municipios
+    public static Municipios consultarMunicipioPeloCodigo(Integer codigoMunicipio){
+        Municipios municipio = null;
+        String query = "SELECT * FROM municipios";  // Seleciona apenas o nome do município
+        
+        // Conecta ao banco de dados e executa a consulta
+        try (Connection connection = createConnection();  // Método createConnection() já é seu código para conectar ao banco
+             Statement stmt = connection.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+
+            // Percorre os resultados e adiciona os nomes à lista
+            while (rs.next()) {
+                Integer codigo = rs.getInt("codigo");
+                
+                // Supondo que você tenha um campo 'nomeMunicipio' para comparação
+                if (codigoMunicipio != null && codigoMunicipio.equals(codigo)) {  // Comparação correta usando equals()
+                    String nome = rs.getString("nome");
+                    String microrregiao = rs.getString("microrregiao");
+                    String estado = rs.getString("estado");
+                    String regiao = rs.getString("regiao");
+                    Double areaKmQuadrado = rs.getDouble("areaKmQuadrado");
+                    Double populacao = rs.getDouble("populacao");
+                    Double domicilios = rs.getDouble("domicilios");
+                    Double pibTotal = rs.getDouble("pibTotal");
+                    Double rendaMedia = rs.getDouble("rendaMedia");
+                    Double rendaNominal = rs.getDouble("rendaNominal");
+                    Double peaDia = rs.getDouble("peaDia");
+                    Double idhGeral = rs.getDouble("idhGeral");
+                    Double idhEducacao = rs.getDouble("idhEducacao");
+                    Double idhLongevidade = rs.getDouble("idhLongevidade");
+                    Timestamp dataAtualizacao = rs.getTimestamp("dataAtualizacao");
+                    
+                    // Cria um novo objeto Municipio com os dados da tabela
+                    municipio = new Municipios(codigo, nome, microrregiao, estado, regiao, areaKmQuadrado, populacao, domicilios, pibTotal,  rendaMedia, rendaNominal, peaDia, idhGeral, idhEducacao, idhLongevidade, dataAtualizacao);
                     return municipio;
                 }
             }
@@ -189,18 +284,15 @@ public class Conexao {
     
     // Método para retonar lista de municipios
     public static List<Municipios> getListaDeMunicipios(){
-        String query = "SELECT * FROM municipios";  // Seleciona apenas o nome do município
+        String query = "SELECT * FROM municipios";
         List<Municipios> listaMunicipios = new ArrayList<>();
         // Conecta ao banco de dados e executa a consulta
-        System.out.println("Aqui");
         try (
             Connection connection = createConnection();  // Método createConnection() já é seu código para conectar ao banco
             Statement stmt = connection.createStatement();
             ResultSet rs = stmt.executeQuery(query)) {
-            System.out.println("Conectado");
-            // Percorre os resultados e adiciona os nomes à lista
+            
             while (rs.next()) {
-                System.out.println("No loop");
                 Integer codigo = rs.getInt("codigo");
                 String nome = rs.getString("nome");
                 String microrregiao = rs.getString("microrregiao");
@@ -216,9 +308,10 @@ public class Conexao {
                 Double idhGeral = rs.getDouble("idhGeral");
                 Double idhEducacao = rs.getDouble("idhEducacao");
                 Double idhLongevidade = rs.getDouble("idhLongevidade");
-                    
+                Timestamp dataAtualizacao = rs.getTimestamp("dataAtualizacao");
+                
                 // Cria um novo objeto Municipio com os dados da tabela
-                Municipios municipio = new Municipios(codigo, nome, microrregiao, estado, regiao, areaKmQuadrado, populacao, domicilios, pibTotal,  rendaMedia, rendaNominal, peaDia, idhGeral, idhEducacao, idhLongevidade);
+                Municipios municipio = new Municipios(codigo, nome, microrregiao, estado, regiao, areaKmQuadrado, populacao, domicilios, pibTotal,  rendaMedia, rendaNominal, peaDia, idhGeral, idhEducacao, idhLongevidade, dataAtualizacao);
                 listaMunicipios.add(municipio);
             }
         } catch (SQLException e) {
